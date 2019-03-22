@@ -15,7 +15,7 @@ int main(void)
 {
 	int running = 1;
 	struct myData person[10];
-	struct msqid_ds msqstat;  //ë‚¨ì€ ë©”ì‹œì§€íì˜ ë©”ì‹œì§€ ê°¯ìˆ˜ë¥¼ í™•ì¸í•˜ê¸° ìœ„í•´
+	struct msqid_ds msqstat;  //³²Àº ¸Ş½ÃÁöÅ¥ÀÇ ¸Ş½ÃÁö °¹¼ö¸¦ È®ÀÎÇÏ±â À§ÇØ
 	int msgid;
 	int personNum = 0;
 
