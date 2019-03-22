@@ -16,6 +16,10 @@ void pinAssign(void)
 	pinMode(LED, OUTPUT);
 	pinMode(SW2, INPUT);
 }
+void displayTime(struct timeval tv)
+{
+	printf("Time: %ld.%ld\r", tv.tv_sec, tv.tv_usec);
+}
 
 int main()
 {
@@ -24,8 +28,8 @@ int main()
 	struct timeval cur_tv;
 	wiringPiSetup();
 	char val1, val2;
-	int flag =1;
-	
+	int flag = 1;
+
 	pinAssign();
 
 	while (digitalRead(SW1))						// switch1이 켜지면 start
@@ -37,50 +41,39 @@ int main()
 		}
 	}
 	while (1)
-	{	
-		do
+	{
+		usleep(10000);
+
+		if ((gettimeofday(&stop_tv, NULL)) == -1)
 		{
-			flag *= -1;
-			while (digitalRead(SW1) == 0) {};
-		} while (digitalRead(SW1) == 0);
-
-		switch (flag)
-		{
-		case 1:
-			usleep(10000);
-
-			if ((gettimeofday(&stop_tv, NULL)) == -1)
-			{
-				perror("gettimeofday() call error");
-				return -1;
-			}
-
-			if (start_tv.tv_usec > stop_tv.tv_usec)
-			{
-				stop_tv.tv_sec--;
-				diff_tv.tv_usec = 1000000 + stop_tv.tv_usec - start_tv.tv_usec;
-				diff_tv.tv_sec = stop_tv.tv_sec - start_tv.tv_sec;
-			}
-			else
-			{
-				diff_tv.tv_usec = stop_tv.tv_usec - start_tv.tv_usec;
-				diff_tv.tv_sec = stop_tv.tv_sec - start_tv.tv_sec;
-			}
-
-			if (digitalRead(SW2) == 0)
-			{
-				printf("LapT: %ld.%ld\n", diff_tv.tv_sec, diff_tv.tv_usec);
-				while (digitalRead(SW2) == 0) {};
-			}
-			else
-			{
-				printf("Time: %ld.%ld\r", diff_tv.tv_sec, diff_tv.tv_usec);
-				fflush(stdout);
-			}
-			break;
-		case -1:
-			break;
+			perror("gettimeofday() call error");
+			return -1;
 		}
-		
+
+		if (start_tv.tv_usec > stop_tv.tv_usec)
+		{
+			stop_tv.tv_sec--;
+			diff_tv.tv_usec = 1000000 + stop_tv.tv_usec - start_tv.tv_usec;
+			diff_tv.tv_sec = stop_tv.tv_sec - start_tv.tv_sec;
+		}
+		else
+		{
+			diff_tv.tv_usec = stop_tv.tv_usec - start_tv.tv_usec;
+			diff_tv.tv_sec = stop_tv.tv_sec - start_tv.tv_sec;
+		}
+
+		if (digitalRead(SW2) == 0)
+		{
+			printf("LapT: %ld.%ld\n", diff_tv.tv_sec, diff_tv.tv_usec);
+			while (digitalRead(SW2) == 0) {};
+		}
+		else
+		{
+			printf("Time: %ld.%ld\r", diff_tv.tv_sec, diff_tv.tv_usec);
+			fflush(stdout);
+		}
+
 	}
+
+}
 }
