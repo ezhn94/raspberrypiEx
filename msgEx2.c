@@ -25,7 +25,7 @@ struct myData
 };
 int main()
 {
-	int prunnning = 1;
+	int prunning = 1;
 	int running =1;
 	struct myData person[10];
 	struct msqid_ds msqstat;
@@ -34,11 +34,9 @@ int main()
 	sigset_t newmask, oldmask;
 	signal(SIGUSR1, sigHandler);
 
-	//long int msg_to_receive = 0;
 	pid_t pid;
 
 	pid = fork();
-	// step1 msgget()
 	msgid = msgget((key_t)1234, 0666 | IPC_CREAT);
 	
 	if(msgid == -1)
@@ -53,10 +51,10 @@ int main()
 	}
 	else if(pid ==0)	// 자식 프로세서(proc2)
 	{
+		pause();
 		while(running)
 		{
 
-			pause();
 
 			if(msgrcv(msgid, &person[personNum], sizeof(person)-sizeof(long), 0, 0) == -1)
 			{
@@ -84,7 +82,6 @@ int main()
 			personNum++;
 		}	
 
-		// step 3 msgctl IPC_RMID
 		if(msgctl(msgid, IPC_RMID, 0) == -1)
 		{
 			fprintf(stderr, "msgctl error\n");
@@ -96,7 +93,6 @@ int main()
 	{
 		while(prunning)
 		{	
-//			sleep(1);
 			printf("이름 입력:");
 			fgets(person[personNum].name, sizeof(person[personNum].name), stdin);
 			if(!strncmp(person[personNum].name, "end", 3))
