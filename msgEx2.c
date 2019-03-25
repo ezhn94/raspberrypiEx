@@ -11,7 +11,7 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/wait.h>
-typedef struct myData myData;
+typedef struct myData SCORE;
 
 void sigHandler(int sig) {}
 
@@ -27,11 +27,11 @@ int main()
 {
 	int prunning = 1;
 	int running =1;
-	struct myData person[10];
+	SCORE person[10];
 	struct msqid_ds msqstat;
 	int msgid;
 	int personNum =0;
-	sigset_t newmask, oldmask;
+	
 	signal(SIGUSR1, sigHandler);
 
 	pid_t pid;
@@ -54,8 +54,6 @@ int main()
 		pause();
 		while(running)
 		{
-
-
 			if(msgrcv(msgid, &person[personNum], sizeof(person)-sizeof(long), 0, 0) == -1)
 			{
 				fprintf(stderr, "msgrcv error: %d\n",errno);
@@ -68,7 +66,7 @@ int main()
 				int sum;
 				sum =person[personNum].kor + person[personNum].eng +person[personNum].mat;
 				getchar();
-				printf("Name: %s\n", person[personNum].name);				
+				printf("Name: %s", person[personNum].name);				
 				printf("SUM: %d\n", sum);
 				printf("AVG: %f\n", (float)sum/3);
 			}
@@ -93,7 +91,7 @@ int main()
 	{
 		while(prunning)
 		{	
-			printf("이름 입력:");
+			printf("INPUT NAME:");
 			fgets(person[personNum].name, sizeof(person[personNum].name), stdin);
 			if(!strncmp(person[personNum].name, "end", 3))
 			{

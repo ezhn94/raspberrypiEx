@@ -11,13 +11,19 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-typedef struct myData myData;
+#include <sys/wait.h>
+
+typedef struct myData SCORE;
 
 #define SHMSIZE 100 // int * 100
 
+
+void sigHandler(int sig)
+{
+}
+
 struct myData
 {
-	long int msgType;
 	char name[20];
 	int kor;
 	int eng;
@@ -27,31 +33,52 @@ struct myData
 int main(void)
 {
 	void *shared_Mem = (void*)0;
-	// void형 포인터: 주소만 중요함, 초기값으로 NULL값을 명시(아직 할당되지 않음을 나타냄)
 	int shmid;
-	int *shmaddr;
+	//int *shmaddr;
+	SCORE* score;
+
+	//SCORE* score = (SCORE*)shared_mem
+
 	int i;
-	struct myData person[10];
+	SCORE person;
+
 	int rdData;
 	pid_t pid;
+	int sum = 0;
+	int flag = 2;
 
-	pid = fork();
-	msgid = msgget((key_t)1234, 0666 | IPC_CREAT);
+	signal(SIGUSR1, sigHandler);
 
-	if (msgid == -1)
+	shmid = shmget((key_t)1234, sizeof(int)*SHMSIZE, 0666 | IPC_CREAT);
+	if (shmid == -1)
 	{
-		fprintf(stderr, "msgget failed\n");
+		fprintf(stderr, "shmget failed\n");
 		exit(EXIT_FAILURE);
 	}
+	score = (SCORE*)shmat(shmid, NULL, 0);
+	SCORE* score = (SCORE*)shared_Mem;
+
+	pid = fork();	
 
 	if (pid == -1)
 	{
 		fprintf(stderr, "fork error\n");
 		exit(EXIT_FAILURE);
 	}
-	else if (pid == 0)	// 자식 프로세서(proc2)
+	else if (pid == 0)	// child proc
 	{
+		pause();
+		printf("CHILD PROC\n");
 		// 5. shmctl
+		printf("flag %d\n", flag);
+		while (flag!=0)
+		{
+			sum = score->kor + score->mat + score->eng;
+			printf("Name: %s\n", score->name);
+			printf("SUM: %d\n", sum);
+			printf("AVG: %f\n", (float)sum / 3);
+			flag--;
+		}
 		if (shmctl(shmid, IPC_RMID, 0) == -1)
 		{
 			fprintf(stderr, "shmctl (IPC_RMID) failed\n");
@@ -59,7 +86,7 @@ int main(void)
 		}
 		exit(EXIT_SUCCESS);
 	}
-	else
+	else				// parents proc
 	{
 		// 1. shmget
 		shmid = shmget((key_t)1234, sizeof(int)*SHMSIZE, 0666 | IPC_CREAT);
@@ -70,50 +97,45 @@ int main(void)
 		}
 
 		// 2. shmat
-		shared_Mem = shmat(shmid, (void*)0, 0); // 다른 프로세서와 공유할 수 있는 영역
+		shared_Mem = shmat(shmid, (void*)0, 0);
 		if (shared_Mem == (void*)-1)
 		{
 			fprintf(stderr, "shmat failed\n");
 			exit(EXIT_FAILURE);
 		}
-
-		printf("Memory attached at %X\n", (int)shared_Mem);
-		shmaddr = (int*)shared_Mem;
+				
+		//shmaddr = (int*)shared_Mem;
 
 		// 3. memory access		
-		while ()
+		while (1)
 		{
-			printf("이름 입력:");
-			fgets(person[personNum].name, sizeof(person[personNum].name), stdin);
+			printf("INPUT NAME:");
+			fgets(person.name, sizeof(person.name), stdin);
 
-			if (!strncmp(person[personNum].name, "end", 3))
+			if (!strncmp(person.name, "end", 3))
 			{
 				printf("END\n");
-				person[personNum].msgType = 2;
-				prunning = 0;
 				kill(pid, SIGUSR1);
+				break;
 			}
 			else
 			{
 				printf("KOR: ");
-				scanf("%d", &person[personNum].kor);
+				scanf("%d", &person.kor);
 				printf("ENG: ");
-				scanf("%d", &person[personNum].eng);
+				scanf("%d", &person.eng);
 				printf("MAT: ");
-				scanf("%d", &person[personNum].mat);
-				person[personNum].msgType = 1;
+				scanf("%d", &person.mat);
 				getchar();
 			}
-			printf();
+			memcpy(&score, &shared_Mem, sizeof(SCORE));			
 		}
-
 		// 4. shmdt
 		if (shmdt(shared_Mem) == -1)
 		{
 			fprintf(stderr, "shmdt failed\n");
 			exit(EXIT_FAILURE);
 		}
-
-
-
+		wait(NULL);
 	}
+}
