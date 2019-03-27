@@ -25,8 +25,6 @@ void* t_function(void* data)
 	argData = *((int*)data);
 	t_id = pthread_self();		// 자신의 id 값을 읽어온다 (getpid)
 	
-	//printf("getpid:%d, tid=%lu, argData: %d\n", getpid(), t_id, argData);
-
 	for (i = argData; i < argData+100000; i++)
 	{
 		sum += i;
@@ -64,7 +62,6 @@ int main(void)
 	}
 	pthread_join(p_thread[0], (void**)&status);
 
-	//printf("thread_join1: %d\n", status);
 	printf("result: %lli\n", sum2);
 
 	gettimeofday(&end, NULL);

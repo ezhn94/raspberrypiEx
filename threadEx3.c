@@ -1,6 +1,5 @@
 // 입력 받아 계산
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -26,8 +26,6 @@ void* t_function(void* data)
 	argData = *((int*)data);
 	t_id = pthread_self();		// 자신의 id 값을 읽어온다 (getpid)
 
-	//printf("getpid:%d, tid=%lu, argData: %d\n", getpid(), t_id, argData);
-
 	for (i = argData; i < argData + 200000; i++)
 	{
 		sum += i;
@@ -59,7 +57,6 @@ int main(void)
 	pthread_join(p_thread[0], (void**)&status);
 
 	
-	//printf("thread_join1: %d\n", status);
 	printf("result: %lli\n", sum2);
 
 
@@ -67,30 +64,5 @@ int main(void)
 	diff = end.tv_sec + end.tv_usec / 1000000.0 - bgn.tv_sec - bgn.tv_usec / 1000000.0;
 
 	printf("time: %f\n", diff);
-
-/*
-	long long test = 0;
-	long long test1 = 0;
-	long long test2 = 0;
-	long long test3 = 0;
-	
-	for (int i = 1; i <= 100000; i++)
-	{
-		test1 += i;
-	}
-	for (int i = 100001; i <= 200000; i++)
-	{
-		test2 += i;
-	}
-	for (int i = 1; i <= 200000; i++)
-	{
-		test3 += i;
-	}
-	test = test1 + test2;
-	printf("1~100000: %llu\n", test1);
-	printf("100001~200000: %llu\n", test2);
-	printf("1~200000: %llu\n", test);
-	printf("1~200000: %llu\n", test3);*/
-
 }
 

@@ -13,7 +13,9 @@
 #include <sys/wait.h>
 typedef struct myData SCORE;
 
-void sigHandler(int sig) {}
+void sigHandler(int sig)
+{
+}
 
 struct myData
 {

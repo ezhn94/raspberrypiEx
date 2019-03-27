@@ -6,7 +6,6 @@
 #include <signal.h>
 
 // For IPC
-//
 
 #include <sys/types.h>
 #include <sys/ipc.h>
