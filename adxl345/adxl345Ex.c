@@ -89,7 +89,7 @@ int main(void)
 		acc_xyz = adxl345_read_xyz(fd);
 		printf("x: %05d  y: %05d  z: %05d\r", acc_xyz.x, acc_xyz.y, acc_xyz.z);
 		fflush(stdout);
-		delay(500);
+		delay(100);
 	}
 
 	return 0;

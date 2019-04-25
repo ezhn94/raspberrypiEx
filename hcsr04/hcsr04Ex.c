@@ -31,8 +31,9 @@ int main(int argc, char *argv[])
 	int startTime, endTime;
 	float distance, before_distance, delta_s;
 	double velocity;
+	double velocity2;
 	int flag = 0;
-	int count=0;
+	int count = 0;
 	struct timeval UTCtime_t1, UTCtime_t2;
 
 	// wiringPiSetup이 실패할 경우 종료 
@@ -42,35 +43,20 @@ int main(int argc, char *argv[])
 	pinMode(trig, OUTPUT);
 	pinMode(echo, INPUT);
 	pinMode(relayDat, OUTPUT);
-
-	while (1)
-	{
-		if (!flag)
-		{
-			flag = 1;
-			digitalWrite(relayDat, LOW);
-		}
-		else
-		{
-			flag = 0;
-			digitalWrite(relayDat, HIGH);
-		}
-		sleep(1);
-	}
-
+		
 
 	while (1) {
 		// Trig신호 생성 (10us)
 		digitalWrite(trig, LOW);
-		delay(500);
+		delay(1	);
 
-		if (!flag && count>0)
+		if (!flag && count > 0)
 		{	//trigger를 입력하는 시점에서 시간 저정
 			gettimeofday(&UTCtime_t1, NULL); // UTC 현재 시간 구하기(마이크로초까지)
 			disp_runtime(UTCtime_t2, UTCtime_t1);
 			flag = 1;
 		}
-		else if(flag && count>0)
+		else if (flag && count > 0)
 		{
 			gettimeofday(&UTCtime_t2, NULL); // UTC 현재 시간 구하기(마이크로초까지)
 			disp_runtime(UTCtime_t1, UTCtime_t2);
@@ -88,21 +74,25 @@ int main(int argc, char *argv[])
 		// Echo back이 '0'이면 종료시간 기록 
 		endTime = micros();
 
-		if (count > 0)
-			printf("runtime : %ld\n", UTCtime_r.tv_usec);
+		/*if (count > 0)
+			printf("runtime : %ld\n", UTCtime_r.tv_usec);*/
 
 		// 거리 계산 공식
 		before_distance = distance;
 		distance = (endTime - startTime) / 58;
-		printf("distance %.2f cm\n", distance);
+		
 
 		if (distance > before_distance)
 			delta_s = distance - before_distance;
 		else
 			delta_s = before_distance - distance;
-		printf("delta_s %f \n", delta_s);
-		velocity = (delta_s*10000)/ (UTCtime_r.tv_usec);  // unit : m/s
-		printf("velocity %f m/s\n", velocity);
+		//printf("delta_s %f \n", delta_s);
+		velocity = (delta_s * 10000) / (UTCtime_r.tv_usec);  // unit : m/s
+		if (velocity != 0)
+		{
+			velocity2 = velocity;
+		}
+		printf("distance: %.2f				velocity: %f				velocity2: %.6f\r", distance, velocity, velocity2);
 		count++;
 	}
 	return 0;
